@@ -32,10 +32,28 @@ class Autor
             return $this->resposta;
 		}
     }
-    
+    /*Funcion para obtener el autor con un id especifico*/
     public function get($id)
     {
-        //TODO
+        try
+		{
+			$result = array();                        
+            $stm = $this->conn->prepare("SELECT id_aut,nom_aut,fk_nacionalitat FROM autors WHERE ID_AUT =:id");
+            /*Comprovar la insercion de codigo*/
+            $stm->bindValue(':id',$id);
+			$stm->execute();
+            $tuples=$stm->fetchAll();
+            $this->resposta->setDades($tuples);    // array de tuples
+			$this->resposta->setCorrecta(true);       // La resposta es correcta        
+            return $this->resposta;
+		}
+        catch(Exception $e)
+		{   // hi ha un error posam la resposta a fals i tornam missatge d'error
+			$this->resposta->setCorrecta(false, $e->getMessage());
+            return $this->resposta;
+		}
+
+
     }
 
     
@@ -71,9 +89,26 @@ class Autor
 		}
     }   
     
-    public function update($data)
+    public function update($data,$id)
     {
-        // TODO
+        try
+		{
+            $result = array();           
+            $stm = $this->conn->prepare("UPDATE autors SET nom_aut =:data where ID_AUT =:id");          
+            /*Comprovar la insercion de codigo*/
+            $stm->bindValue(':id',$id);
+            $stm->bindValue(':data',$data);
+			$stm->execute();
+			$this->resposta->setCorrecta(true);       // La resposta es correcta        
+            return $this->resposta;
+		}
+        catch(Exception $e)
+		{   // hi ha un error posam la resposta a fals i tornam missatge d'error
+			$this->resposta->setCorrecta(false, $e->getMessage());
+            return $this->resposta;
+		}
+
+
     }
 
     
