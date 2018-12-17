@@ -55,9 +55,8 @@ class Autor
 
 
     }
-
     
-    public function insert($data)
+    public function insert($nombre,$pais)
     {
 		try 
 		{
@@ -66,17 +65,15 @@ class Autor
                 $stm->execute();
                 $row=$stm->fetch();
                 $id_aut=$row["N"]+1;
-                $nom_aut=$data['nom_aut'];
-                $fk_nacionalitat=$data['fk_nacionalitat'];
 
-                $sql = "INSERT INTO autors
+                $insertar = "INSERT INTO autors
                             (id_aut,nom_aut,fk_nacionalitat)
-                            VALUES (:id_aut,:nom_aut,:fk_nacionalitat)";
+                            VALUES (:id,:nom,:nacionalidad)";
                 
-                $stm=$this->conn->prepare($sql);
-                $stm->bindValue(':id_aut',$id_aut);
-                $stm->bindValue(':nom_aut',$nom_aut);
-                $stm->bindValue(':fk_nacionalitat',!empty($fk_nacionalitat)?$fk_nacionalitat:NULL,PDO::PARAM_STR);
+                $stm=$this->conn->prepare($insertar);
+                $stm->bindValue(':id',$id_aut);
+                $stm->bindValue(':nom',$nombre);
+                $stm->bindValue(':nacionalidad',!empty($pais)?$pais:NULL,PDO::PARAM_STR);
                 $stm->execute();
             
        	        $this->resposta->setCorrecta(true);
@@ -89,15 +86,16 @@ class Autor
 		}
     }   
     
-    public function update($data,$id)
+    public function update($data,$id,$nacionalidad)
     {
         try
 		{
             $result = array();           
-            $stm = $this->conn->prepare("UPDATE autors SET nom_aut =:data where ID_AUT =:id");          
+            $stm = $this->conn->prepare("UPDATE autors SET nom_aut =:data,fk_nacionalitat =:nacionalidad where ID_AUT =:id");          
             /*Comprovar la insercion de codigo*/
             $stm->bindValue(':id',$id);
             $stm->bindValue(':data',$data);
+            $stm->bindValue(':nacionalidad',$nacionalidad);
 			$stm->execute();
 			$this->resposta->setCorrecta(true);       // La resposta es correcta        
             return $this->resposta;
@@ -115,7 +113,21 @@ class Autor
     
     public function delete($id)
     {
-        // TODO
+        try
+		{
+            $result = array();           
+            $stm = $this->conn->prepare("DELETE from AUTORS where ID_AUT =:id");          
+            /*Comprovar la insercion de codigo*/
+            $stm->bindValue(':id',$id);
+			$stm->execute();
+			$this->resposta->setCorrecta(true);       // La resposta es correcta        
+            return $this->resposta;
+		}
+        catch(Exception $e)
+		{   // hi ha un error posam la resposta a fals i tornam missatge d'error
+			$this->resposta->setCorrecta(false, $e->getMessage());
+            return $this->resposta;
+		}
     }
 
     public function filtra($where,$orderby,$offset,$count)
